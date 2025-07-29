@@ -1,13 +1,16 @@
-require('dotenv').config();          // load .env variables early
+const dotenv = require('dotenv');
+dotenv.config();
+const express = require('express');
+const cors = require('cors');
+const connectToDb = require('./db/db');  // Fixed typo: was "connnectToDb"
 
-const express = require('express');  // correct module
-const cors    = require('cors');     // correct module
+connectToDb();  // Fixed typo: was "connnectToDb"
 
 const app = express();
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+    res.send('Hello World');
 });
 
 module.exports = app;
