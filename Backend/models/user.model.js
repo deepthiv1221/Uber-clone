@@ -31,10 +31,22 @@ const userSchema = new mongoose.Schema({
     },
 })
 
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+});
+
 userSchema.methods.generateAuthToken = function () {
-    const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign(
+         { _id: this._id }, // ✅ this is what `req.user.id` expects
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+    );
     return token;
-}
+};
 
 userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);

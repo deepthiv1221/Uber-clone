@@ -2,7 +2,9 @@ const axios = require('axios');
 const captainModel = require('../models/captain.model');
 
 module.exports.getAddressCoordinate = async (address) => {
-    const apiKey = process.env.GOOGLE_MAPS_API;
+    
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
 
     try {
@@ -27,7 +29,7 @@ module.exports.getDistanceTime = async (origin, destination) => {
         throw new Error('Origin and destination are required');
     }
 
-    const apiKey = process.env.GOOGLE_MAPS_API;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
     const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${apiKey}`;
 
@@ -57,21 +59,30 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
         throw new Error('query is required');
     }
 
-    const apiKey = process.env.GOOGLE_MAPS_API;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+    console.log("✅ API KEY:", apiKey); // check if key is available
+    console.log("🔍 Input:", input); // check if input is valid
+
     const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
 
     try {
         const response = await axios.get(url);
+        console.log("🌐 API Response:", response.data); // log the whole response
+
         if (response.data.status === 'OK') {
-            return response.data.predictions.map(prediction => prediction.description).filter(value => value);
+            return response.data.predictions
+                .map(prediction => prediction.description)
+                .filter(value => value);
         } else {
-            throw new Error('Unable to fetch suggestions');
+            throw new Error('Unable to fetch suggestions: ' + response.data.status);
         }
     } catch (err) {
-        console.error(err);
+        console.error("❌ API Error:", err.message);
         throw err;
     }
 }
+
 
 module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
 
